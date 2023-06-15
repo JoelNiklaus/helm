@@ -1782,7 +1782,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions=get_lextreme_instructions(subset),
         input_noun="Passage",
-        output_noun="Answer",
+        output_noun="Label(s)",
         max_tokens=get_lextreme_max_tokens(subset),
         max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
     )
@@ -1805,7 +1805,7 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions=get_lex_glue_instructions(subset),
         input_noun="Passage",
-        output_noun="Answer",
+        output_noun="Label(s)",
         max_tokens=get_lex_glue_max_tokens(subset),
         max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
     )
