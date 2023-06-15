@@ -60,7 +60,8 @@ class ClassificationMetric(Metric):
             input_text = request_state.result.completions[0].text
             predictions = input_text.split(self.delimiter) if self.is_multi_label() else [input_text]
             y_pred.append([normalize_text(pred) for pred in predictions if pred])
-        labels: List[str] = list(set(y for ys in y_true for y in ys))
+        labels: List[str] = list(set(y for ys in y_true for y in ys if y)) # make sure we don't have None or ''
+
         mlb = MultiLabelBinarizer().fit([labels])
         y_true = mlb.transform(y_true)
         y_pred = mlb.transform(y_pred)
