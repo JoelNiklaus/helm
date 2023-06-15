@@ -163,6 +163,8 @@ class AutoClient(Client):
                 "bigscience",
                 "bigcode",
                 "EleutherAI",
+                "huggyllama",
+                "tiiuae",
                 "facebook",
                 "google",
                 "gooseai",

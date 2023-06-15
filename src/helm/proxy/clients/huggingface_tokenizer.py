@@ -62,6 +62,16 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "EleutherAI/gpt-j-6B"
                 elif tokenizer_name == "EleutherAI/gpt-neox-20b":
                     hf_tokenizer_name = "EleutherAI/gpt-neox-20b"
+                elif tokenizer_name == "EleutherAI/pythia-12b":
+                    hf_tokenizer_name = "EleutherAI/pythia-12b"
+                elif tokenizer_name == "EleutherAI/pythia-6.9b":
+                    hf_tokenizer_name = "EleutherAI/pythia-6.9b"
+                elif tokenizer_name == "huggyllama/llama-7b":
+                    hf_tokenizer_name = "huggyllama/llama-7b"
+                elif tokenizer_name == "tiiuae/falcon-7b":
+                    hf_tokenizer_name = "tiiuae/falcon-7b"
+                elif tokenizer_name == "tiiuae/falcon-7b-instruct":
+                    hf_tokenizer_name = "tiiuae/falcon-7b-instruct"
                 elif tokenizer_name == "bigscience/bloom":
                     hf_tokenizer_name = "bigscience/bloom"
                 elif tokenizer_name == "bigscience/T0pp":
