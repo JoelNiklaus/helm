@@ -83,7 +83,7 @@ TASK_MAX_TRAIN_INSTANCES_MAPPING = {
 
 
 def get_lextreme_max_train_instances(subset):
-    return TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
+    return 0  # TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
 
 
 TASK_MAX_TOKENS_MAPPING = {
@@ -114,91 +114,91 @@ def get_lextreme_max_tokens(subset):
 
 INSTRUCTIONS = {
     BRAZILIAN_COURT_DECISIONS_JUDGMENT: "In this task, you are given the case description "
-    "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
-    "Predict the judgment of the case "
-    "(no: The appeal was denied, "
-    "partial: For partially favourable decisions, "
-    "yes: For fully favourable decisions)",
+                                        "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
+                                        "Predict the judgment of the case "
+                                        "(no: The appeal was denied, "
+                                        "partial: For partially favourable decisions, "
+                                        "yes: For fully favourable decisions)",
     BRAZILIAN_COURT_DECISIONS_UNANIMITY: "In this task, you are given the case description "
-    "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
-    "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
+                                         "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
+                                         "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
     GERMAN_ARGUMENT_MINING: "In this task, you are given sentences from German court decisions. "
-    "Predict the major component of German Urteilsstil "
-    "(conclusion: Overall result, "
-    "definition: Abstract legal facts and consequences, "
-    "subsumption: Determination sentence / Concrete facts, "
-    "other: Anything else)",
+                            "Predict the major component of German Urteilsstil "
+                            "(conclusion: Overall result, "
+                            "definition: Abstract legal facts and consequences, "
+                            "subsumption: Determination sentence / Concrete facts, "
+                            "other: Anything else)",
     GREEK_LEGAL_CODE_CHAPTER: "In this task, you are given a Greek legislative document. "
-    "Predict the chapter level category of the "
-    "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+                              "Predict the chapter level category of the "
+                              "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     GREEK_LEGAL_CODE_SUBJECT: "In this task, you are given a Greek legislative document. "
-    "Predict the subject level category of the "
-    "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+                              "Predict the subject level category of the "
+                              "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     GREEK_LEGAL_CODE_VOLUME: "In this task, you are given a Greek legislative document. "
-    "Predict the volume level category of the "
-    "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+                             "Predict the volume level category of the "
+                             "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     SWISS_JUDGMENT_PREDICTION: "In this task, you are given the facts description "
-    "from a decision heard at the Swiss Federal Supreme Court. "
-    "Predict the judgment of the case (approval: The appeal was approved, or dismissal: The appeal was denied)",
+                               "from a decision heard at the Swiss Federal Supreme Court. "
+                               "Predict the judgment of the case (approval: The appeal was approved, or dismissal: The appeal was denied)",
     ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS: "In this task, you are given a sentence "
-    "from a Terms of Service (ToS) document. "
-    "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
+                                               "from a Terms of Service (ToS) document. "
+                                               "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
     ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS: "In this task, you are given a sentence "
-    "from a Terms of Service (ToS) document. "
-    "Predict the clause topics of the sentence out of the following: "
-    "0: Arbitration, "
-    "1: Unilateral change, "
-    "2: Content removal, "
-    "3: Jurisdiction, "
-    "4: Choice of law, "
-    "5: Limitation of liability, "
-    "6: Unilateral termination, "
-    "7: Contract by using, "
-    "8: Privacy included. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+                                           "from a Terms of Service (ToS) document. "
+                                           "Predict the clause topics of the sentence out of the following: "
+                                           "A: Arbitration, "
+                                           "B: Unilateral change, "
+                                           "C: Content removal, "
+                                           "D: Jurisdiction, "
+                                           "E: Choice of law, "
+                                           "F: Limitation of liability, "
+                                           "G: Unilateral termination, "
+                                           "H: Contract by using, "
+                                           "I: Privacy included. "
+                                           "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     COVID19_EMERGENCY_EVENT: "In this task, you are given a sentence from a European legislative document. "
-    "Predict the applicable measurements against COVID-19 out of the following: "
-    "0: State of Emergency, "
-    "1: Restrictions of fundamental rights and civil liberties, "
-    "2: Restrictions of daily liberties, "
-    "3: Closures / lockdown, "
-    "4: Suspension of international cooperation and commitments, "
-    "5: Police mobilization, "
-    "6: Army mobilization, "
-    "7: Government oversight. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+                             "Predict the applicable measurements against COVID-19 out of the following: "
+                             "A: State of Emergency, "
+                             "B: Restrictions of fundamental rights and civil liberties, "
+                             "C: Restrictions of daily liberties, "
+                             "D: Closures / lockdown, "
+                             "E: Suspension of international cooperation and commitments, "
+                             "F: Police mobilization, "
+                             "G: Army mobilization, "
+                             "H: Government oversight. "
+                             "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     MULTI_EURLEX_LEVEL_1: "In this task, you are given a document from an EU law. "
-    "Predict the level 1 concept in the EUROVOC taxonomy. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+                          "Predict the level 1 concept in the EUROVOC taxonomy. "
+                          "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     MULTI_EURLEX_LEVEL_2: "In this task, you are given a document from an EU law. "
-    "Predict the level 2 concept in the EUROVOC taxonomy. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+                          "Predict the level 2 concept in the EUROVOC taxonomy. "
+                          "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     MULTI_EURLEX_LEVEL_3: "In this task, you are given a document from an EU law. "
-    "Predict the level 3 concept in the EUROVOC taxonomy. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+                          "Predict the level 3 concept in the EUROVOC taxonomy. "
+                          "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     GREEK_LEGAL_NER: "In this task, you are given a sentence from Greek legislation. "
-    "Predict the named entity type for each token out of the following: "
-    "O, B-ORG, I-ORG, B-GPE, I-GPE, B-LEG-REFS, I-LEG-REFS, B-PUBLIC-DOCS, I-PUBLIC-DOCS, B-PERSON, I-PERSON, "
-    "B-FACILITY, I-FACILITY, B-LOCATION-UNK, I-LOCATION-UNK, B-LOCATION-NAT, I-LOCATION-NAT",
+                     "Predict the named entity type for each token out of the following: "
+                     "O, B-ORG, I-ORG, B-GPE, I-GPE, B-LEG-REFS, I-LEG-REFS, B-PUBLIC-DOCS, I-PUBLIC-DOCS, B-PERSON, I-PERSON, "
+                     "B-FACILITY, I-FACILITY, B-LOCATION-UNK, I-LOCATION-UNK, B-LOCATION-NAT, I-LOCATION-NAT",
     LEGALNERO: "In this task, you are given a sentence from Romanian legislation. "
-    "Predict the named entity type for each token out of the following: "
-    "O, B-TIME, I-TIME, B-LEGAL, I-LEGAL, B-ORG, I-ORG, B-LOC, I-LOC, B-PER, I-PER",
+               "Predict the named entity type for each token out of the following: "
+               "O, B-TIME, I-TIME, B-LEGAL, I-LEGAL, B-ORG, I-ORG, B-LOC, I-LOC, B-PER, I-PER",
     LENER_BR: "In this task, you are given a sentence "
-    "from Brazilian legal documents (court decisions and legislation). "
-    "Predict the named entity type for each token out of the following: "
-    "O, B-ORGANIZACAO, I-ORGANIZACAO, B-PESSOA, I-PESSOA, B-TEMPO, I-TEMPO, B-LOCAL, I-LOCAL, "
-    "B-LEGISLACAO, I-LEGISLACAO, B-JURISPRUDENCIA, I-JURISPRUDENCIA",
+              "from Brazilian legal documents (court decisions and legislation). "
+              "Predict the named entity type for each token out of the following: "
+              "O, B-ORGANIZACAO, I-ORGANIZACAO, B-PESSOA, I-PESSOA, B-TEMPO, I-TEMPO, B-LOCAL, I-LOCAL, "
+              "B-LEGISLACAO, I-LEGISLACAO, B-JURISPRUDENCIA, I-JURISPRUDENCIA",
     MAPA_COARSE: "In this task, you are given a sentence from the EUR-Lex database. "
-    "Predict the coarse grained named entity type for each token out of the following: "
-    "O, B-ORGANISATION, I-ORGANISATION, B-ADDRESS, I-ADDRESS, B-DATE, I-DATE, "
-    "B-PERSON, I-PERSON, B-AMOUNT, I-AMOUNT, B-TIME, I-TIME",
+                 "Predict the coarse grained named entity type for each token out of the following: "
+                 "O, B-ORGANISATION, I-ORGANISATION, B-ADDRESS, I-ADDRESS, B-DATE, I-DATE, "
+                 "B-PERSON, I-PERSON, B-AMOUNT, I-AMOUNT, B-TIME, I-TIME",
     MAPA_FINE: "In this task, you are given a sentence from the EUR-Lex database. "
-    "Predict the fine grained named entity type for each token out of the following: "
-    "O, B-BUILDING, I-BUILDING, B-CITY, I-CITY, B-COUNTRY, I-COUNTRY, B-PLACE, I-PLACE, B-TERRITORY, I-TERRITORY, "
-    "I-UNIT, B-UNIT, B-VALUE, I-VALUE, B-YEAR, I-YEAR, B-STANDARD ABBREVIATION, I-STANDARD ABBREVIATION, "
-    "B-MONTH, I-MONTH, B-DAY, I-DAY, B-AGE, I-AGE, B-ETHNIC CATEGORY, I-ETHNIC CATEGORY, B-FAMILY NAME, I-FAMILY NAME, "
-    "B-INITIAL NAME, I-INITIAL NAME, B-MARITAL STATUS, I-MARITAL STATUS, B-PROFESSION, I-PROFESSION, B-ROLE, I-ROLE, "
-    "B-NATIONALITY, I-NATIONALITY, B-TITLE, I-TITLE, B-URL, I-URL, B-TYPE, I-TYPE",
+               "Predict the fine grained named entity type for each token out of the following: "
+               "O, B-BUILDING, I-BUILDING, B-CITY, I-CITY, B-COUNTRY, I-COUNTRY, B-PLACE, I-PLACE, B-TERRITORY, I-TERRITORY, "
+               "I-UNIT, B-UNIT, B-VALUE, I-VALUE, B-YEAR, I-YEAR, B-STANDARD ABBREVIATION, I-STANDARD ABBREVIATION, "
+               "B-MONTH, I-MONTH, B-DAY, I-DAY, B-AGE, I-AGE, B-ETHNIC CATEGORY, I-ETHNIC CATEGORY, B-FAMILY NAME, I-FAMILY NAME, "
+               "B-INITIAL NAME, I-INITIAL NAME, B-MARITAL STATUS, I-MARITAL STATUS, B-PROFESSION, I-PROFESSION, B-ROLE, I-ROLE, "
+               "B-NATIONALITY, I-NATIONALITY, B-TITLE, I-TITLE, B-URL, I-URL, B-TYPE, I-TYPE",
 }
 
 
@@ -387,6 +387,9 @@ class LEXTREMEScenario(Scenario):
         elif task_code == TaskType.NER:
             label_classes = self.ner_class_mapping[config]
 
+        if config in [ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS, COVID19_EMERGENCY_EVENT]:
+            label_classes = [chr(int(num) + 65) for num in label_classes]  # convert to letters
+
         def generate_instance(example, split: str):
             # get correct labels
             if task_code == TaskType.SLTC:
@@ -396,6 +399,9 @@ class LEXTREMEScenario(Scenario):
                 correct_labels = list(map(str, example["label"]))  # here we don't have any mapping to label names
             elif task_code == TaskType.NER:
                 correct_labels = [label_classes[label] for label in example["label"]]
+
+            if config in [ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS, COVID19_EMERGENCY_EVENT]:
+                correct_labels = [chr(int(num) + 65) for num in correct_labels]  # convert to letters
 
             # construct wrong references
             wrong_references = []
@@ -449,7 +455,9 @@ class LEXTREMEScenario(Scenario):
             split_dataset = dataset[self.splits_mapping[split]]
             return [generate_instance(example, split) for example in split_dataset]
 
-        return generate_instances(TRAIN_SPLIT) + generate_instances(VALID_SPLIT) + generate_instances(TEST_SPLIT)
+        return generate_instances(TRAIN_SPLIT) \
+               + generate_instances(TEST_SPLIT)
+        # + generate_instances(VALID_SPLIT) \
 
     def get_instances(self) -> List[Instance]:
         instances = []

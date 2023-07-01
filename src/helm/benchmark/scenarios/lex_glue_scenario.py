@@ -43,7 +43,7 @@ TASK_MAX_TRAIN_INSTANCES_MAPPING = {
 
 
 def get_lex_glue_max_train_instances(subset):
-    return TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
+    return 0  # TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
 
 
 TASK_MAX_TOKENS_MAPPING = {
@@ -63,68 +63,68 @@ def get_lex_glue_max_tokens(subset):
 
 INSTRUCTIONS = {
     ECTHR_A: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-    "Predict the articles of the ECtHR that were violated (if any) out of the following: "
-    "0: Article 2, "
-    "1: Article 3, "
-    "2: Article 5, "
-    "3: Article 6, "
-    "4: Article 8, "
-    "5: Article 9, "
-    "6: Article 10, "
-    "7: Article 11, "
-    "8: Article 14, "
-    "9: Article 1 of Protocol 1. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+             "Predict the articles of the ECtHR that were violated (if any) out of the following: "
+             "A: Article 2, "
+             "B: Article 3, "
+             "C: Article 5, "
+             "D: Article 6, "
+             "E: Article 8, "
+             "F: Article 9, "
+             "G: Article 10, "
+             "H: Article 11, "
+             "I: Article 14, "
+             "J: Article 1 of Protocol 1. "
+             "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     ECTHR_B: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-    "Predict the articles of ECtHR that were allegedly violated (considered by the court) out of the following:"
-    "0: Article 2, "
-    "1: Article 3, "
-    "2: Article 5, "
-    "3: Article 6, "
-    "4: Article 8, "
-    "5: Article 9, "
-    "6: Article 10, "
-    "7: Article 11, "
-    "8: Article 14, "
-    "9: Article 1 of Protocol 1. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+             "Predict the articles of ECtHR that were allegedly violated (considered by the court) out of the following: "
+             "A: Article 2, "
+             "B: Article 3, "
+             "C: Article 5, "
+             "D: Article 6, "
+             "E: Article 8, "
+             "F: Article 9, "
+             "G: Article 10, "
+             "H: Article 11, "
+             "I: Article 14, "
+             "J: Article 1 of Protocol 1. "
+             "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     SCOTUS: "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
-    "Predict the relevant issue area out of the following: "
-    "0: Criminal Procedure, "
-    "1: Civil Rights, "
-    "2: First Amendment, "
-    "3: Due Process, "
-    "4: Privacy, "
-    "5: Attorneys, "
-    "6: Unions, "
-    "7: Economic Activity, "
-    "8: Judicial Power, "
-    "9: Federalism, "
-    "10: Interstate Relations, "
-    "11: Federal Taxation, "
-    "12: Miscellaneous, "
-    "13: Private Action.",
+            "Predict the relevant issue area out of the following: "
+            "A: Criminal Procedure, "
+            "B: Civil Rights, "
+            "C: First Amendment, "
+            "D: Due Process, "
+            "E: Privacy, "
+            "F: Attorneys, "
+            "G: Unions, "
+            "H: Economic Activity, "
+            "I: Judicial Power, "
+            "J: Federalism, "
+            "K: Interstate Relations, "
+            "L: Federal Taxation, "
+            "M: Miscellaneous, "
+            "N: Private Action.",
     EURLEX: "In this task, you are given an EU law document published in the EUR-Lex portal. "
-    "Predict the relevant EuroVoc concepts. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+            "Predict the relevant EuroVoc concepts. "
+            "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     LEDGAR: "In this task, you are given a contract provision "
-    "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
-    "Predict the main topic. ",
+            "from contracts obtained from US Securities and Exchange Commission (SEC) filings. "
+            "Predict the main topic. ",  # TODO add topics
     UNFAIR_TOS: "In this task, you are given a sentence "
-    "from a Terms of Service (ToS) document from online platforms. "
-    "Predict the types of unfair contractual terms out of the following: "
-    "0: Limitation of liability, "
-    "1: Unilateral termination, "
-    "2: Unilateral change, "
-    "3: Content removal, "
-    "4: Contract by using, "
-    "5: Choice of law, "
-    "6: Jurisdiction, "
-    "7: Arbitration. "
-    "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
+                "from a Terms of Service (ToS) document from online platforms. "
+                "Predict the types of unfair contractual terms out of the following: "
+                "A: Limitation of liability, "
+                "B: Unilateral termination, "
+                "C: Unilateral change, "
+                "D: Content removal, "
+                "E: Contract by using, "
+                "F: Choice of law, "
+                "G: Jurisdiction, "
+                "H: Arbitration. "
+                "If there is no label reply n/a, if there are multiple labels specify all of them separated by a comma.",
     CASE_HOLD: "In this task, you are given an excerpt from a court decision, "
-    "containing a reference to a particular case, while the holding statement is masked out. "
-    "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
+               "containing a reference to a particular case, while the holding statement is masked out. "
+               "Predict the letter of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
 }
 
 
@@ -192,7 +192,7 @@ class LexGLUEScenario(Scenario):
 
         if task_code in [TaskType.SLTC, TaskType.QA]:
             class_label = dataset["train"].features["label"]
-            label_classes = class_label.names
+            label_classes = sorted(class_label.names)
         elif task_code == TaskType.MLTC:
             # construct the label classes
             label_classes = set()
@@ -201,6 +201,9 @@ class LexGLUEScenario(Scenario):
                     label_classes |= set(example["labels"])  # add all new labels to the set
             label_classes = sorted(list(map(str, label_classes)))  # convert everything to a string
 
+        if config in [ECTHR_A, ECTHR_B, SCOTUS, UNFAIR_TOS, CASE_HOLD]:
+            label_classes = [chr(int(num) + 65) for num in label_classes]  # convert to letters
+
         def generate_instance(example, split: str):
             # get correct labels
             if task_code in [TaskType.SLTC, TaskType.QA]:
@@ -208,6 +211,9 @@ class LexGLUEScenario(Scenario):
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
             elif task_code == TaskType.MLTC:
                 correct_labels = list(map(str, example["labels"]))  # here we don't have any mapping to label names
+
+            if config in [ECTHR_A, ECTHR_B, SCOTUS, UNFAIR_TOS, CASE_HOLD]:
+                correct_labels = [chr(int(num) + 65) for num in correct_labels]  # convert to letters
 
             # construct wrong references
             wrong_references = []
@@ -224,8 +230,8 @@ class LexGLUEScenario(Scenario):
                 if "ecthr" in config:
                     input_text = " ".join(input_text)
             elif task_code == TaskType.QA:
-                endings = [f"{i}: {end}" for i, end in enumerate(example["endings"])]
-                input_text = example["context"] + " Holdings: " + " ".join(endings)
+                endings = [f"{chr(i + 65)}: {end}" for i, end in enumerate(example["endings"])]
+                input_text = example["context"] + "\n\nHoldings:\n" + "\n".join(endings)
 
             # construct correct references
             correct_references = [
@@ -244,7 +250,9 @@ class LexGLUEScenario(Scenario):
             split_dataset = dataset[self.splits_mapping[split]]
             return [generate_instance(example, split) for example in split_dataset]
 
-        return generate_instances(TRAIN_SPLIT) + generate_instances(VALID_SPLIT) + generate_instances(TEST_SPLIT)
+        return generate_instances(TRAIN_SPLIT) \
+               + generate_instances(TEST_SPLIT)
+        # + generate_instances(VALID_SPLIT) \
 
     def get_instances(self) -> List[Instance]:
         instances = []
