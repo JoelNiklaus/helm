@@ -1,6 +1,9 @@
+import traceback
 from copy import deepcopy
 import torch
 from dataclasses import asdict
+
+from torch import autocast
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from typing import Any, Dict, List
 
@@ -30,14 +33,33 @@ class HuggingFaceServer:
         if model_config.revision:
             model_kwargs["revision"] = model_config.revision
         with htrack_block(f"Loading Hugging Face model for config {model_config}"):
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_config.model_id, trust_remote_code=True, **model_kwargs
-            ).to(self.device)
+            if model_config.lora_model_name:
+                print(f"Loading Lora model {model_config.lora_model_name} with revision {model_config.lora_revision}")
+                from peft import PeftModel
+                model = AutoModelForCausalLM.from_pretrained(model_config.model_id, return_dict=True,
+                                                             # load_in_8bit=True, device_map='auto',
+                                                             trust_remote_code=True,
+                                                             )
+
+                # Load the Lora model
+                self.model = PeftModel.from_pretrained(model, model_config.lora_model_id,
+                                                       revision=model_config.lora_revision) \
+                    .to(self.device)  # .bfloat16()
+                self.model.eval()
+            else:
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_config.model_id, trust_remote_code=True,
+                    # load_in_8bit=True, device_map='auto',
+                    **model_kwargs
+                ).to(self.device).bfloat16()
+
         with htrack_block(f"Loading Hugging Face tokenizer model for config {model_config}"):
-            self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, **model_kwargs)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_config.model_id, use_fast=True, **model_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
-        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
+        # the falcon model does not use token type ids
+        encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
+            self.device)
         raw_request = deepcopy(raw_request)
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
@@ -49,7 +71,7 @@ class HuggingFaceServer:
             # Total number of stop words should be 1.
             assert len(stop_sequence_ids.input_ids) == 1
             # Total number of tokens in each stop word should be 1.
-            assert len(stop_sequence_ids.input_ids[0]) == 1
+            assert len(stop_sequence_ids.input_ids[0]) == 1, stop_sequence_ids.input_ids[0]
             del raw_request["stop_sequences"]
             raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
@@ -61,7 +83,20 @@ class HuggingFaceServer:
         }
 
         # Use HuggingFace's `generate` method.
-        output = self.model.generate(**encoded_input, **relevant_raw_request)
+        # with autocast(device_type=self.device.split(":")[0], dtype=torch.bfloat16):
+        with torch.cuda.amp.autocast():
+            with torch.no_grad():
+                output = self.model.generate(**encoded_input,  # **relevant_raw_request,
+                                             do_sample=True,
+                                             max_new_tokens=200,
+                                             temperature=0.9,
+                                             repetition_penalty=1.1,
+                                             top_k=50,
+                                             top_p=0.95,
+                                             num_return_sequences=1,
+                                             return_dict_in_generate=True,
+                                             output_scores=True
+                                             )
         sequences = output.sequences
         scores = output.scores
 
@@ -91,7 +126,7 @@ class HuggingFaceServer:
 
         # Remove prompt from the start of each sequence if echo_prompt is False.
         if not raw_request["echo_prompt"]:
-            sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
+            sequences = [sequence[len(encoded_input.input_ids[0]):] for sequence in sequences]
 
         # TODO: Get rid of the extra tokenization?
         all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
@@ -99,7 +134,7 @@ class HuggingFaceServer:
 
         completions = []
         for (decoded_text, tokens, logprobs_of_chosen_tokens, top_logprobs_dicts) in zip(
-            all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens, all_top_logprobs_dicts
+                all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens, all_top_logprobs_dicts
         ):
             completions.append(
                 {
@@ -109,6 +144,8 @@ class HuggingFaceServer:
                     "top_logprobs_dicts": top_logprobs_dicts,
                 }
             )
+            print("Prediction: ", decoded_text, tokens)
+            # TODO output correct labels
 
         return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
@@ -158,6 +195,7 @@ class HuggingFaceClient(Client):
             "top_k_per_token": request.top_k_per_token,
             "stop_sequences": request.stop_sequences,
         }
+        print(f"raw_request: {raw_request}")
 
         # Get cached model server instance if possible (to save on model and tokenizer
         # loading times).
@@ -172,6 +210,7 @@ class HuggingFaceClient(Client):
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
             error: str = f"HuggingFace error: {e}"
+            print(traceback.format_exc())
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions = []
@@ -181,7 +220,7 @@ class HuggingFaceClient(Client):
 
             if request.echo_prompt:
                 # Add prompt to list of generated tokens.
-                generated_tokens = raw_completion["tokens"][response["input_length"] :]
+                generated_tokens = raw_completion["tokens"][response["input_length"]:]
                 for token_text in raw_completion["tokens"][: response["input_length"]]:
                     tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
             else:
@@ -189,7 +228,7 @@ class HuggingFaceClient(Client):
 
             # Compute logprob for the entire sequence.
             for token_text, logprob, top_logprobs_dict in zip(
-                generated_tokens, raw_completion["logprobs"], raw_completion["top_logprobs_dicts"]
+                    generated_tokens, raw_completion["logprobs"], raw_completion["top_logprobs_dicts"]
             ):
                 tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
                 sequence_logprob += logprob
@@ -216,10 +255,14 @@ class HuggingFaceClient(Client):
             def do_it():
                 if request.encode:
                     if request.truncation:
+                        max_length = request.max_length
+                        if request.max_length > 2048:
+                            # https://github.com/huggingface/transformers/issues/16998#issuecomment-1184522342
+                            max_length = 2048
                         tokens = tokenizer.encode(
                             request.text,
                             truncation=request.truncation,
-                            max_length=request.max_length,
+                            max_length=max_length,
                             add_special_tokens=False,
                         )
                     else:
@@ -231,6 +274,7 @@ class HuggingFaceClient(Client):
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
             error: str = f"HuggingFace error: {e}"
+            print(traceback.format_exc())
             return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
 
         return TokenizationRequestResult(
@@ -257,6 +301,7 @@ class HuggingFaceClient(Client):
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
             error: str = f"HuggingFace error: {e}"
+            print(traceback.format_exc())
             return DecodeRequestResult(success=False, cached=False, error=error, text="")
 
         return DecodeRequestResult(

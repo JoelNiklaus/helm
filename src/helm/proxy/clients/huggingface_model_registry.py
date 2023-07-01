@@ -28,6 +28,10 @@ class HuggingFaceModelConfig:
 
     If None, use the default revision."""
 
+    lora_namespace: Optional[str]
+    lora_model_name: Optional[str]
+    lora_revision: Optional[str]
+
     @property
     def model_id(self) -> str:
         """Return the model ID.
@@ -38,6 +42,17 @@ class HuggingFaceModelConfig:
         if self.namespace:
             return f"{self.namespace}/{self.model_name}"
         return self.model_name
+
+    @property
+    def lora_model_id(self) -> str:
+        """Return the model ID.
+
+        Examples:
+        - 'gpt2'
+        - 'stanford-crfm/BioMedLM'"""
+        if self.lora_namespace:
+            return f"{self.lora_namespace}/{self.lora_model_name}"
+        return self.lora_model_name
 
     def __str__(self) -> str:
         """Return the full model name used by HELM in the format "[namespace/]model_name[@revision]".
@@ -61,15 +76,30 @@ class HuggingFaceModelConfig:
         - 'gpt2'
         - 'stanford-crfm/BioMedLM'
         - 'stanford-crfm/BioMedLM@main'"""
+        namespace, model_name, revision = HuggingFaceModelConfig.parse_model_string(raw)
+        lora_namespace, lora_model_name, lora_revision = None, None, None
+        if 'lora' in model_name:
+            from peft import PeftConfig
+            lora_namespace = namespace
+            lora_model_name = model_name
+            lora_revision = revision
+            peft_config = PeftConfig.from_pretrained(f"{namespace}/{model_name}")
+            namespace, model_name, revision = HuggingFaceModelConfig.parse_model_string(
+                peft_config.base_model_name_or_path)
+        assert model_name
+
+        return HuggingFaceModelConfig(
+            namespace=namespace, model_name=model_name, revision=revision,
+            lora_namespace=lora_namespace, lora_model_name=lora_model_name, lora_revision=lora_revision
+        )
+
+    @staticmethod
+    def parse_model_string(raw):
         pattern = r"((?P<namespace>[^/@]+)/)?(?P<model_name>[^/@]+)(@(?P<revision>[^/@]+))?"
         match = re.fullmatch(pattern, raw)
         if not match:
             raise ValueError(f"Could not parse model name: '{raw}'; Expected format: [namespace/]model_name[@revision]")
-        model_name = match.group("model_name")
-        assert model_name
-        return HuggingFaceModelConfig(
-            namespace=match.group("namespace"), model_name=model_name, revision=match.group("revision")
-        )
+        return match.group("namespace"), match.group("model_name"), match.group("revision")
 
 
 _huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
