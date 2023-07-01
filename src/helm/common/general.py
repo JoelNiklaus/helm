@@ -198,6 +198,7 @@ def parallel_map(
     """
     A wrapper for applying `process` to all `items`.
     """
+    parallelism = 1 # disable parallelism because it leads to problems for huggingface client
     units = "processes" if multiprocessing else "threads"
     with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
         results: List
